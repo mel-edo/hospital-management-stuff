@@ -3,7 +3,6 @@
 Members:-
 1) Saurabh
 2) Raunak
-3) Sujal
 
 Title:- Patient information system
 (no. of people registered, vaccine takers, no. of shots, which one is it etc.)
