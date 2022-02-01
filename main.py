@@ -14,3 +14,11 @@ Program should be able to:-
 -transactions
 -report generation of patients
 '''
+
+import mysql.connector as c
+
+con = c.connect(host="localhost", user="placeholder", password="placeholder")
+
+cur = con.cursor()
+
+
