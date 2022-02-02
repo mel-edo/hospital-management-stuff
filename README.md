@@ -1,4 +1,1 @@
-# pog
-project pog
-
-LMAO
+Computer Science Project
