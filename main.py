@@ -25,8 +25,6 @@ import mysql.connector as c
 con = c.connect(host="localhost", user="placeholder", password="placeholder")
 cur = con.cursor()
 
-
-
 # Main loop
 
 while True:
