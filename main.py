@@ -108,21 +108,142 @@ def list_serv():
 def modify():
 
     # Modifying either patients,doctors or services info
+    # Modification means either updating current data or deleting current data (adding data takes place in register function)
 
     print("Which data do you want to modify?\n")
-
     print("1) Patients\n2) Doctors\n3) Services")
+
     modify_ch = int(input("Enter one of the numbers(1-3) above to proceed (Default is Patients):- "))
     print("--------------------------------")
 
     if modify_ch == 2:  # Doctors case
-        pass
+
+        row = int(input("Enter doctor's ID whose info you want to modify?:- "))
+
+        col = input("Which column do you want to modify?:- ")
+
+        print("Do you want to update current data or delete data?")
+        up_del = int(input("Enter 1 or 2 (default is 1):- "))
+
+        if up_del == 2:  # Deleting data case
+
+            print("Do you want to delete specific content from row or entire row?")
+
+            delw = int(input("Enter 1 or 2 (default is 1):- "))
+
+            if delw == 2:
+                cur.execute("delete from Doctors where DocotorID = {}").format(row)
+                con.commit()
+
+                return "Given row was deleted!"
+
+            else:
+                cur.execute("update Doctors set {} = NULL where DoctorID = {}").format(col, row)
+                con.commit()
+
+                return "Given value in the row was deleted!"
+
+        else:  # Updating data case
+
+            upd = input("Enter new value you want to enter")
+
+            if col == "RoomNo" or col == "Phone":
+                cur.execute("update Doctor set {} = {} where DoctorID = {}").format(col, int(upd), row)
+                con.commit()
+
+                return "Given row was updated!"
+
+            else:
+                cur.execute("update Doctor set {} = {} where DoctorID = {}").format(col, upd, row)
+                con.commit()
+
+                return "Given row was updated!"
 
     elif modify_ch == 3:  # Services case
-        pass
+
+        row = int(input("Enter service's ID whose info you want to modify?:- "))
+
+        col = input("Which column do you want to modify?:- ")
+
+        print("Do you want to update current data or delete data?")
+        up_del = int(input("Enter 1 or 2 (default is 1):- "))
+
+        if up_del == 2:  # Deleting data case
+
+            print("Do you want to delete specific content from row or entire row?")
+
+            delw = int(input("Enter 1 or 2 (default is 1):- "))
+
+            if delw == 2:
+                cur.execute("delete from Services where ServiceID = {}").format(row)
+                con.commit()
+
+                return "Given row was deleted!"
+
+            else:
+                cur.execute("update Services set {} = NULL where ServiceID = {}").format(col, row)
+                con.commit()
+
+                return "Given value in the row was deleted!"
+
+        else:  # Updating data case
+
+            upd = input("Enter new value you want to enter")
+
+            if col == "RoomNo":
+                cur.execute("update Services set {} = {} where ServiceID = {}").format(col, int(upd), row)
+                con.commit()
+
+                return "Given row was updated!"
+
+            else:
+                cur.execute("update Services set {} = {} where ServiceID = {}").format(col, upd, row)
+                con.commit()
+
+                return "Given row was updated!"
 
     else:  # Patients case
-        pass
+
+        row = int(input("Enter Patient's ID whose info you want to modify?:- "))
+
+        col = input("Which column do you want to modify?:- ")
+
+        print("Do you want to update current data or delete data?")
+        up_del = int(input("Enter 1 or 2 (default is 1):- "))
+
+        if up_del == 2:  # Deleting data case
+
+            print("Do you want to delete specific content from row or entire row?")
+
+            delw = int(input("Enter 1 or 2 (default is 1):- "))
+
+            if delw == 2:
+                cur.execute("delete from Patients where PatientID = {}").format(row)
+                con.commit()
+
+                return "Given row was deleted!"
+
+            else:
+                cur.execute("update Patients set {} = NULL where PatientID = {}").format(col, row)
+                con.commit()
+
+                return "Given value in the row was deleted!"
+
+        else:  # Updating data case
+
+            upd = input("Enter new value you want to enter")
+
+            if col == "Age" or col == "Phone":
+                cur.execute("update Patients set {} = {} where PatientID = {}").format(col, int(upd), row)
+                con.commit()
+
+                return "Given row was updated!"
+
+            else:
+                cur.execute("update Patients set {} = {} where PatientID = {}").format(col, upd, row)
+                con.commit()
+
+                return "Given row was updated!"
 
 # Main loop
 
@@ -141,7 +262,7 @@ while True:
         continue
 
     else:
-        if ch == 7:
+        if ch == 8:
             print("Thank you for using our program!")
             print("--------------------------------")
 

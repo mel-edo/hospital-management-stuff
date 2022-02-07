@@ -4,11 +4,11 @@
 
 1. check out foreign table stuff for appointments
 
-2. make both appointment(patient) and (doctor) functions after figuring out 2nd point
+2. make both appointment(patient) and (doctor) functions after figuring out 1st point
 
-3. register_doctor func
+3. ~~register_doctor func~~
 
-4. modify() functions
+4. find efficient way for modify() function
 
 5. check for errors
 
