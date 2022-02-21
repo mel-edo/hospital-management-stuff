@@ -6,22 +6,7 @@ Members:-
 
 Title:- Patient information system
 
-(no. of people registered, vaccine takers, no. of shots, which one is it etc.)
-
-Program should be able to:-
--search all records of patients
--track info of patients
--add, update, remove patient data and medicine data
--report generation for patients
--transactions
--report generation of patients
-
-Adding project synopsis for easy access here:-
-https://docs.google.com/document/d/1UYbQPDa1fvAXFaGIU2_KWfl-VtuCvlOuH5WvQmfIf68/edit?usp=sharing
-
 '''
-
-# NOTE TO CONTRIBUTORS:- I have replaced aadhar no. for patientID
 
 import mysql.connector as c
 import random
