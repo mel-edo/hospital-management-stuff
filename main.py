@@ -17,7 +17,7 @@ db_password = input("Enter database password:- ")
 con = c.connect(host="localhost", user=db_user, password=db_password)
 
 cur = con.cursor()
-
+dekho 
 # Creating the database and the tables
 # Going to make 3 tables, Patients, Doctors, Services in the hospital
 
@@ -321,6 +321,8 @@ while True:
     else:
         if ch == 9:
             print("Thank you for using our program!")
+            print()
+            print("Developed by Raunak and Saurabh")
             print("--------------------------------")
 
             cur.close()
