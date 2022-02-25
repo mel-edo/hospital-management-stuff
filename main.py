@@ -17,7 +17,6 @@ db_password = input("Enter database password:- ")
 con = c.connect(host="localhost", user=db_user, password=db_password)
 
 cur = con.cursor()
-dekho 
 # Creating the database and the tables
 # Going to make 3 tables, Patients, Doctors, Services in the hospital
 
