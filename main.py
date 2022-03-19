@@ -4,26 +4,26 @@ Members:-
 1) Raunak
 2) Saurabh
 
-Title:- Patient information system
+Title:- Hospital Management system
 
 '''
 
 import mysql.connector as c
-import random
 
 db_user = input("Enter database username:- ")
 db_password = input("Enter database password:- ")
 
 con = c.connect(host="localhost", user=db_user, password=db_password)
 
-cur = con.cursor()
+cur = con.cursor(buffered=True)
+
 # Creating the database and the tables
 # Going to make 3 tables, Patients, Doctors, Services in the hospital
 
 cur.execute("create database if not exists hospital")
 cur.execute("use hospital")
 
-cur.execute("create table if not exists Patients(PatientID int AUTO_INCREMENT PRIMARY KEY, Name varchar(50), Age int, Gender varchar(20), Phone int, Bloodgroup varchar (10))")
+cur.execute("create table if not exists Patients(PatientID int AUTO_INCREMENT PRIMARY KEY, Name varchar(50), Age int, Gender varchar(20), Phone char(10), Bloodgroup varchar (10))")
 
 cur.execute("create table if not exists Doctors(DoctorID int AUTO_INCREMENT PRIMARY KEY, Name varchar(50), Specialization varchar(50), RoomNo int, Phone char(10), Timeslot varchar(10))")
 
@@ -43,7 +43,7 @@ def register_patient():
 
     # Inserting the patient's information into the table
 
-    cur.execute("insert into Patients (Name, Age, Gender, Phone, Bloodgroup) values(%s, %s, %s, %s, %s)", (name, age, gender, phone, blood))
+    cur.execute("insert into Patients (Name, Age, Gender, Phone, Bloodgroup) values((%s), (%s), (%s), (%s), (%s))", (name, age, gender, phone, blood))
 
     con.commit()
 
@@ -60,11 +60,11 @@ def register_doctor():
     specialization = input("Enter doctors specialization:- ")
     phone = int(input("Enter doctors phone no.:- "))
     roomNo = int(input("Enter doctors RoomNo:- "))
-    timeslot = input("Enter doctors timeslot:- ")
+    timeslot = input("Enter doctors timeslot (Morning, Afternoon, Evening, Night (Case-Sensitive)):- ")
 
     # Inserting the doctors information into the table
 
-    cur.execute("insert into Doctors (Name, Specialization, RoomNo, Phone, Timeslot) values(%s, %s, %s, %s, %s)", (name, specialization, roomNo, phone, timeslot))
+    cur.execute("insert into Doctors (Name, Specialization, RoomNo, Phone, Timeslot) values((%s), (%s), (%s), (%s), (%s))", (name, specialization, roomNo, phone, timeslot))
 
     con.commit()
     print()
@@ -81,7 +81,7 @@ def register_service():
 
     # Inserting data into table
 
-    cur.execute("insert into Services (Services, RoomNo) values(%s, %s)", (name, roomNo))
+    cur.execute("insert into Services (Services, RoomNo) values((%s), (%s))", (name, roomNo))
 
     con.commit()
     print()
@@ -99,60 +99,66 @@ def appointment_patient():
         print("Please enter a correct timeslot from one of the above!")
 
     else:
-        print("The following doctors are available in this timeslot:-")
-        cur.execute("select DoctorID, Name, RoomNo, Specialization from Doctors where Timeslot=%s", (timeslot))
-        choices = []  # Adds all doctorIDs into this list for random selection
+        print()
+        print("The following doctors are available in this timeslot:-\n(DoctorID, Name, RoomNo, Specialization)")
+        print()
+        cur.execute(f"select DoctorID, Name, RoomNo, Specialization from Doctors where Timeslot='{timeslot}'")
 
-        a = 0
-        while a is not None:
-            a = cur.fetchone()
-            print(a)
-        cur.execute("select DoctorID from Doctors where Timeslot=%s", (timeslot))
+        data = cur.fetchall()
+        for a in data:
+            print(a)  # Prints the name of the available doctors
+        cur.execute(f"select DoctorID from Doctors where Timeslot='{timeslot}'")
 
-        a = 0
-        while a is not None:
-            a = cur.fetchone()[0]
-            choices.append(a)
+        print()
 
-        print("Do you want appointment with specific doctor? (y/n) (Default is n)")
-        app = input("Enter your choice:- ")
+        d_id = input("Enter DoctorID of whom you want an appointment with:- ")
 
-        if app == "y":
-            d_id = input("Enter DoctorID of whom you want an appointment with:- ")
-            appointments[d_id] += [p_id]  # Adds the patient to associate with the doctors key
-            print("Your appointment has been set in your preffered timeslot!")
+        try:
+            appointments[d_id] += [p_id]    # Adds the patient to associate with the doctors key
+        except:
+            appointments[d_id] = [p_id]
 
-        else:
-            ch1 = random.choice(choices)
-            appointments[ch1] += [p_id]
-            print("Your appointment has been set in your preffered timeslot!")
+        print()
+        print("Your appointment has been set in your preffered timeslot!")
+        print()
 
 def appointment_doctor():
 
-    d_id = int(input("Enter your id:-"))
-    print("You have appointments with the following people in your timeslot:-")
-    print(appointments[d_id])
+    d_id = input("Enter your id:-")
+
+    if d_id not in appointments:
+        print("You have no appointments currently!")
+
+    else:
+        print("You have appointments with the following people in your timeslot:-")
+        print()
+        ids = appointments[d_id]  # Storing the id's of the patients in this list
+        print("(PatientID, Name, Age, Gender, Phone, Bloodgroup)")
+        for i in ids:
+            cur.execute(f"select * from Patients where PatientID = {i}")
+            print(cur.fetchone())
+        print()
 
 def list_doc():
 
     # Listing all the doctors along with their specialization, RoomNo and their timeslot
 
     cur.execute("select Name, RoomNo, Specialization, Timeslot from Doctors order by Timeslot")
-    a = 0
-    while a is not None:
-        a = cur.fetchone()
+    print("Name, RoomNo, Specialization, Timeslot")
+
+    for a in cur.fetchall():
         print(a)
+    print()
 
 def list_serv():
 
     # Listing all the services along with their RoomNo
 
     cur.execute("select Services, RoomNo from Services")
-
-    a = 0
-    while a is not None:
-        a = cur.fetchone()
+    print("Name, RoomNo")
+    for a in cur.fetchall():
         print(a)
+    print()
 
 def modify():
 
@@ -170,8 +176,6 @@ def modify():
         row = int(input("Enter doctor's ID whose info you want to modify?:- "))
 
         col = input("Which column do you want to modify?:- ")
-        cur.execute("select %s from Doctors where DoctorID=%s", (col, row))
-        old = cur.fetchone()[0]
 
         print("Do you want to update current data or delete data?")
         up_del = int(input("Enter 1 or 2 (default is 1):- "))
@@ -183,40 +187,38 @@ def modify():
             delw = int(input("Enter 1 or 2 (default is 1):- "))
 
             if delw == 2:
-                cur.execute("delete from Doctors where DocotorID = %s", (row))
+                cur.execute(f"delete from Doctors where DoctorID = {row}")
                 con.commit()
 
-                return "Given row was deleted!"
+                print("Given row was deleted!")
 
             else:
-                cur.execute("update Doctors set %s = NULL where DoctorID = %s", (old, row))
+                cur.execute(f"update Doctors set '{col}' = NULL where DoctorID = {row}")
                 con.commit()
 
-                return "Given value in the row was deleted!"
+                print("Given value in the row was deleted!")
 
         else:  # Updating data case
 
-            upd = input("Enter new value you want to enter")
+            upd = input("Enter new value you want to enter:- ")
 
             if col == "RoomNo":
-                cur.execute("update Doctor set %s = %s where DoctorID = %s", (int(old), int(upd), row))
+                cur.execute(f"update Doctors set {col} = {int(upd)} where DoctorID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
             else:
-                cur.execute("update Doctor set %s = %s where DoctorID = %s", (old, upd, row))
+                cur.execute(f"update Doctors set {col} = '{upd}' where DoctorID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
     elif modify_ch == 3:  # Services case
 
         row = int(input("Enter service's ID whose info you want to modify?:- "))
 
         col = input("Which column do you want to modify?:- ")
-        cur.execute("select %s from Services where ServiceID=%s", (col, row))
-        old = cur.fetchone()[0]
 
         print("Do you want to update current data or delete data?")
         up_del = int(input("Enter 1 or 2 (default is 1):- "))
@@ -228,32 +230,32 @@ def modify():
             delw = int(input("Enter 1 or 2 (default is 1):- "))
 
             if delw == 2:
-                cur.execute("delete from Services where ServiceID = %s", (row))
+                cur.execute(f"delete from Services where ServiceID = {row}")
                 con.commit()
 
-                return "Given row was deleted!"
+                print("Given row was deleted!")
 
             else:
-                cur.execute("update Services set %s = NULL where ServiceID = %s", (old, row))
+                cur.execute(f"update Services set {col} = NULL where ServiceID = {row}")
                 con.commit()
 
-                return "Given value in the row was deleted!"
+                print("Given value in the row was deleted!")
 
         else:  # Updating data case
 
-            upd = input("Enter new value you want to enter")
+            upd = input("Enter new value you want to enter:- ")
 
             if col == "RoomNo":
-                cur.execute("update Services set %s = %s where ServiceID = %s", (int(old), int(upd), row))
+                cur.execute(f"update Services set {col} = {int(upd)} where ServiceID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
             else:
-                cur.execute("update Services set %s = %s where ServiceID = %s"), (old, upd, row)
+                cur.execute(f"update Services set {col} = '{upd}' where ServiceID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
     else:  # Patients case
 
@@ -261,9 +263,6 @@ def modify():
 
         col = input("Which column do you want to modify?:- ")
 
-        cur.execute("select %s from Patients where PatientID=%s", (col, row))
-        print(cur.fetchall())
-
         print("Do you want to update current data or delete data?")
         up_del = int(input("Enter 1 or 2 (default is 1):- "))
 
@@ -274,37 +273,37 @@ def modify():
             delw = int(input("Enter 1 or 2 (default is 1):- "))
 
             if delw == 2:
-                cur.execute("delete from Patients where PatientID = %s", (row))
+                cur.execute(f"delete from Patients where PatientID = {row}")
                 con.commit()
 
-                return "Given row was deleted!"
+                print("Given row was deleted!")
 
             else:
-                cur.execute("update Patients set %s = NULL where PatientID = %s", (old, row))
+                cur.execute(f"update Patients set {col} = NULL where PatientID = {row}")
                 con.commit()
 
-                return "Given value in the row was deleted!"
+                print("Given value in the row was deleted!")
 
         else:  # Updating data case
 
             upd = input("Enter new value you want to enter:- ")
 
             if col == "Age":
-                cur.execute("update Patients set %s = %s where PatientID = %s", (int(old), int(upd), row))
+                cur.execute(f"update Patients set {col} = {int(upd)} where PatientID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
             else:
-                cur.execute("update Patients set %s = %s where PatientID = %s", (old, upd, row))
+                cur.execute(f"update Patients set {col} = '{upd}' where PatientID = {row}")
                 con.commit()
 
-                return "Given row was updated!"
+                print("Given row was updated!")
 
 # Main loop
 
 while True:
-
+    print("--------------------------------")
     print("Hospital Management system:-\n")
 
     print("1) Register(patient)\n2) Register(doctor)\n3) Register(service)\n4) Make an Appointment(patient)\n5) Check Appointments(doctor)\n6) List of doctors\n7) List of services\n8) Edit Data\n9) Exit")
@@ -320,8 +319,6 @@ while True:
     else:
         if ch == 9:
             print("Thank you for using our program!")
-            print()
-            print("Developed by Raunak and Saurabh")
             print("--------------------------------")
 
             cur.close()
