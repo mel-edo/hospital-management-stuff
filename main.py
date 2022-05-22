@@ -1,9 +1,5 @@
 '''CS class 12th Project
 
-Members:-
-1) Raunak
-2) Saurabh
-
 Title:- Hospital Management system
 
 '''
